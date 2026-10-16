@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carta para Dani</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&display=swap">
+<style>
+/* Layout: a vertical tabletop scene. A tall sage envelope sealed with a gold rose opens (seal cracks, flap lifts, card rises) into an arch-framed ivory letter. */
+:root {
+  --linen: #D8CDBD;
+  --paper: #F1EEE1;
+  --paper-light: #F7F5EC;
+  --paper-dark: #E8E5D4;
+  --ink: #383B31;
+  --ink-soft: #565A4B;
+  --ornament: #8C917C;
+  --ivory: #F1EBD7;
+  --font-script: 'Pinyon Script', 'Snell Roundhand', 'Brush Script MT', cursive;
+  --font-serif: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --grain: none;
+  --weave: none;
+  color-scheme: light;
+}
+
+html { height: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-block: 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background-color: var(--linen);
+  color: var(--ink);
+  font-family: var(--font-serif);
+}
+
+.scene, .letter-view { position: relative; z-index: 2; }
+
+/* ---------- Tabletop ---------- */
+.table {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-color: var(--linen);
+  background-image:
+    var(--weave),
+    radial-gradient(ellipse 60% 40% at 18% 14%, rgba(255, 250, 240, 0.55), transparent 70%),
+    radial-gradient(ellipse 70% 50% at 86% 82%, rgba(110, 95, 72, 0.26), transparent 70%),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0 16%, transparent 16% 34%, rgba(90, 75, 55, 0.10) 40%, transparent 52%, rgba(255, 255, 255, 0.14) 66%, transparent 80%),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(60, 48, 30, 0.2) 100%);
+}
+.table svg { display: block; width: 100%; height: 100%; }
+#decor .stems path { fill: none; stroke: #9BA283; stroke-width: 1; stroke-linecap: round; }
+#decor .flowers ellipse { fill: #FCFAF3; stroke: rgba(170, 160, 130, 0.55); stroke-width: 0.4; }
+#decor .flowers .fc { fill: #C9B67E; stroke: none; }
+#decor .olive-stem { fill: none; stroke: #6E6C50; stroke-width: 2; stroke-linecap: round; }
+#decor .ol-a { fill: #6B7B52; }
+#decor .ol-b { fill: #7D8D63; }
+#decor .ol-c { fill: #5B6B45; }
+#decor .rib { fill: none; stroke: rgba(235, 240, 215, 0.35); stroke-width: 0.7; }
+
+/* ---------- Envelope scene (vertical) ---------- */
+.scene {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+.scene.leaving { opacity: 0; transform: translateY(10px) scale(0.98); }
+
+.env-wrap {
+  position: relative;
+  width: min(100%, 420px, calc((100vh - 80px) * 0.6104));
+  width: min(100%, 420px, calc((100svh - 80px) * 0.6104));
+  transform: rotate(-1.5deg);
+  transition: transform 0.4s ease;
+}
+.env-wrap:hover:not(.open) { transform: translateY(-3px) rotate(-0.8deg); }
+
+.env-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  box-shadow: 0 30px 44px -16px rgba(55, 45, 25, 0.6), 0 8px 14px rgba(55, 45, 25, 0.35), 0 1px 2px rgba(55, 45, 25, 0.5);
+}
+
+.envelope {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1200 / 1966;
+  overflow: hidden;
+  perspective: 1100px;
+  perspective-origin: 50% 12%;
+  container-type: inline-size;
+  background-color: #565f47;
+  border-radius: 2px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.envelope:focus-visible { outline: 2px solid var(--ink); outline-offset: 8px; }
+.open .envelope { cursor: default; }
+
+.env-part { position: absolute; display: block; }
+.shape { position: absolute; inset: 0; display: block; }
+
+.inside {
+  inset: 0;
+  background-image: linear-gradient(180deg, #5C664E 0%, #454D3C 100%);
+}
+
+/* Card sliding out */
+.card {
+  left: 15%;
+  width: 70%;
+  top: 47%;
+  aspect-ratio: 5 / 7;
+  z-index: 2;
+  transform: rotate(-1deg);
+  background-color: var(--paper);
+  background-image: linear-gradient(160deg, var(--paper-light), var(--paper-dark));
+  box-shadow: 0 1px 2px rgba(20, 22, 10, 0.4), 0 8px 16px -4px rgba(20, 22, 10, 0.45);
+  overflow: hidden;
+  transition: transform 1.2s cubic-bezier(0.3, 0.7, 0.2, 1) 0.8s;
+}
+.open .card { transform: translateY(-65%) rotate(-2.2deg); }
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain);
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.card-arch {
+  position: absolute;
+  inset: 3.2% 3.2% 0 3.2%;
+  border: 1px solid var(--ornament);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+.card-arch::after {
+  content: "";
+  position: absolute;
+  inset: 5px 5px 0 5px;
+  border: 1px solid rgba(140, 145, 124, 0.55);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+.card-kicker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 19%;
+  text-align: center;
+  font-size: clamp(0.5rem, 2.1cqw, 0.62rem);
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.card-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 25%;
+  text-align: center;
+  font-family: var(--font-script);
+  font-size: 10cqw;
+  line-height: 1;
+  color: var(--ink);
+}
+.card-lines {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  top: 48%;
+  display: grid;
+  gap: 7px;
+}
+.card-lines i {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(86, 90, 75, 0.28);
+}
+.card-lines i:nth-child(2) { margin: 0 8%; }
+.card-lines i:nth-child(4) { margin: 0 18%; }
+
+/* Envelope front: photo of the sage envelope, split into pockets and top flap */
+.pockets {
+  inset: 0;
+  z-index: 3;
+  filter: drop-shadow(0 0 9px rgba(12, 18, 6, 0.6));
+}
+.pockets .shape {
+  background-color: #6c7058;
+  background-image: url(assets/env.jpg);
+  background-size: 100% 100%;
+  clip-path: polygon(0 0, 6.9% 0, 49.75% 43.7%, 91.4% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.flap {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 43.95%;
+  z-index: 5;
+  transform-origin: 50% 0;
+  filter: drop-shadow(0 2px 3px rgba(12, 18, 6, 0.35));
+}
+.flap .shape {
+  background-color: #6c7058;
+  background-image: url(assets/env.jpg);
+  background-size: 100% 227.5%;
+  background-position: 0 0;
+  clip-path: polygon(6.5% 0, 91.83% 0, 49.75% 100%);
+}
+.open .flap { animation: flap-open 1s ease-in-out 0.3s forwards; }
+@keyframes flap-open {
+  0% { transform: rotateX(0deg); }
+  100% { transform: rotateX(96deg); }
+}
+
+.env-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: var(--ivory);
+  text-shadow: 0 1px 2px rgba(30, 36, 18, 0.65);
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.open .env-text { opacity: 0; }
+.flap-text { top: 15%; z-index: 2; }
+.kicker {
+  display: block;
+  font-size: clamp(0.6rem, 2.7cqw, 0.8rem);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.sender {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--font-script);
+  font-size: 9.2cqw;
+  line-height: 1.15;
+}
+.env-hint {
+  bottom: 4.2%;
+  z-index: 7;
+  font-size: clamp(0.6rem, 2.7cqw, 0.8rem);
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+/* Wax seal (photo asset) that cracks in two */
+.seal {
+  left: 49.6%;
+  top: 46.4%;
+  width: 34%;
+  aspect-ratio: 334 / 344;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+}
+.seal > span {
+  position: absolute;
+  inset: 0;
+  display: block;
+  filter: drop-shadow(0 4px 4px rgba(25, 22, 10, 0.5)) drop-shadow(0 12px 14px rgba(25, 22, 10, 0.3));
+}
+.seal img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; }
+.seal-whole { animation: breathe 3.4s ease-in-out infinite; }
+.seal-half { visibility: hidden; }
+.seal-l img { clip-path: polygon(0 0, 52% 0, 47% 14%, 55% 30%, 46% 47%, 54% 63%, 47% 80%, 53% 100%, 0 100%); }
+.seal-r img { clip-path: polygon(52% 0, 100% 0, 100% 100%, 53% 100%, 47% 80%, 54% 63%, 46% 47%, 55% 30%, 47% 14%); }
+.open .seal-whole { visibility: hidden; animation: none; }
+.open .seal-half { visibility: visible; }
+.open .seal-l { animation: crack-l 0.95s ease-in forwards; }
+.open .seal-r { animation: crack-r 0.95s ease-in forwards; }
+
+@keyframes breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+@keyframes crack-l {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  18% { transform: translate(-3%, 1%) rotate(-3deg); opacity: 1; }
+  100% { transform: translate(-60%, 130%) rotate(-34deg); opacity: 0; }
+}
+@keyframes crack-r {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  18% { transform: translate(3%, 1%) rotate(3deg); opacity: 1; }
+  100% { transform: translate(60%, 130%) rotate(34deg); opacity: 0; }
+}
+
+/* ---------- Letter ---------- */
+.letter-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 620px;
+}
+.letter-view:focus { outline: none; }
+.letter-view.show { animation: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: none; }
+}
+
+.paper {
+  position: relative;
+  container-type: inline-size;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--paper);
+  background-image: linear-gradient(160deg, var(--paper-light) 0%, var(--paper) 45%, var(--paper-dark) 100%);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(30, 30, 15, 0.35), 0 4px 8px rgba(30, 30, 15, 0.18), 0 30px 54px -22px rgba(30, 30, 15, 0.55);
+}
+.paper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--grain);
+  background-size: 220px 220px;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.paper-inner {
+  position: relative;
+  z-index: 1;
+  padding-top: calc(100cqw * 0.3);
+  padding-bottom: clamp(44px, 8vw, 64px);
+  padding-left: clamp(46px, 10vw, 76px);
+  padding-right: clamp(46px, 10vw, 76px);
+}
+.eyebrow {
+  margin: 0 auto 6px;
+  max-width: 24em;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--ink-soft);
+}
+
+.salutation {
+  margin: 10px 0 18px;
+  text-align: center;
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: clamp(2.8rem, 11vw, 3.8rem);
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.paper p.body {
+  margin: 0 0 1.15em;
+  font-size: clamp(1.16rem, 3.7vw, 1.32rem);
+  font-weight: 500;
+  line-height: 1.7;
+  color: var(--ink);
+  text-wrap: pretty;
+}
+.paper em { font-style: italic; font-weight: 500; }
+
+.signoff {
+  margin: 26px 0 0;
+  text-align: right;
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+.signature {
+  margin: 2px 0 20px;
+  text-align: right;
+  font-family: var(--font-script);
+  font-size: 2.7rem;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.seal-mini {
+  display: block;
+  width: 70px;
+  height: auto;
+  margin: 0 auto;
+  filter: drop-shadow(0 2px 2px rgba(25, 22, 10, 0.45)) drop-shadow(0 6px 7px rgba(25, 22, 10, 0.25));
+}
+
+.reseal {
+  appearance: none;
+  margin-top: 30px;
+  padding: 4px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--ink-soft);
+  background: none;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.reseal:hover { color: var(--ink); }
+.reseal:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* page reset */
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="2" dy="3.5" stdDeviation="3" flood-color="#3A2E18" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="table" aria-hidden="true">
+  <svg id="decor" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice"><g id="decorG" filter="url(#soft-shadow)"></g></svg>
+</div>
+
+<section class="scene" id="scene" aria-label="Sobre cerrado">
+  <div class="env-wrap" id="wrap">
+    <span class="env-shadow"></span>
+    <button class="envelope" id="envelope" type="button" aria-label="Abrir la carta para Dani">
+      <span class="env-part inside"></span>
+      <span class="env-part card">
+        <span class="card-arch"></span>
+        <span class="card-kicker">Para</span>
+        <span class="card-name">Dani</span>
+        <span class="card-lines"><i></i><i></i><i></i><i></i></span>
+      </span>
+      <span class="env-part pockets"><span class="shape"></span></span>
+      <span class="env-part flap">
+        <span class="shape"></span>
+        <span class="env-text flap-text">
+          <span class="kicker">Tienes una carta de</span>
+          <span class="sender">Valentina</span>
+        </span>
+      </span>
+      <span class="env-part seal">
+        <span class="seal-whole"><img src="assets/seal.png" alt="" draggable="false"></span>
+        <span class="seal-half seal-l"><img src="assets/seal.png" alt="" draggable="false"></span>
+        <span class="seal-half seal-r"><img src="assets/seal.png" alt="" draggable="false"></span>
+      </span>
+      <span class="env-part env-text env-hint">Toca el sello para abrir</span>
+    </button>
+  </div>
+</section>
+
+<article class="letter-view" id="letterView" hidden tabindex="-1" aria-labelledby="salutation">
+  <div class="paper" id="paper">
+    <svg class="frame" id="frame" aria-hidden="true" focusable="false"></svg>
+    <div class="paper-inner">
+      <p class="eyebrow">Para el primer día de tu nueva vida</p>
+      <h1 class="salutation" id="salutation">Dani,</h1>
+
+      <p class="body">Nunca pensé que este momento llegaría de una manera tan repentina, pero aquí estamos, después de más de diez años de amistad. Y aunque estoy en otro continente, te acompaño con todo mi corazón.</p>
+
+      <p class="body">Recuerdo cuando en el colegio bromeábamos sobre quién se casaría primero, y decíamos que sería yo, con mi ex, porque llevábamos un par de años juntos. Y mira ahora. También recuerdo cuando me presentaste a esta persona y me dijiste «él es el amor de mi vida, va a ser mi esposo». En ese momento pensé que estabas bromeando. Años después, me parece increíble ver que eso se volvió realidad.</p>
+
+      <p class="body">Tengo sentimientos encontrados, porque estoy muy lejos de ti en este momento y me estoy perdiendo uno de los días que juré que compartiría contigo. Por eso escribí esta carta, para que te llegara un día después de que todo estuviera bien, marcando el primer día de tu nueva vida. Es un paso enorme el que estás dando, y solo quiero que sepas que cuentas conmigo para todo.</p>
+
+      <p class="body">Espero que Dios y la Virgen te sigan iluminando y bendiciendo, y que puedan estar juntos para siempre. Hace un tiempo, un padre me dijo que toda relación debería medirse bajo Corintios 13, que dice que <em>el amor no es jactancioso, no es egoísta, todo lo espera y todo lo perdona</em>. Quisiera que llevaras esto en el corazón de hoy en adelante, junto a la persona que te va a acompañar en este nuevo camino.</p>
+
+      <p class="body">Estás creando un futuro brillante. No tengo palabras suficientes para expresar cuánto deseo que todos tus planes y proyectos salgan adelante. Ojalá pudiera verte pronto y darte un abrazo, pero mientras tanto te mando uno virtual, un beso gigante y mis mayores bendiciones. Ayer y hoy estuviste en mis oraciones, porque te encomendé al Señor de los Milagros.</p>
+
+      <p class="signoff">Con todo mi cariño,</p>
+      <p class="signature">Valentina</p>
+
+      <img class="seal-mini" src="assets/seal.png" alt="" width="70" draggable="false">
+    </div>
+  </div>
+  <button class="reseal" id="reclose" type="button">Volver a cerrar el sobre</button>
+</article>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var wrap = document.getElementById('wrap');
+  var scene = document.getElementById('scene');
+  var envelope = document.getElementById('envelope');
+  var view = document.getElementById('letterView');
+  var paper = document.getElementById('paper');
+  var frame = document.getElementById('frame');
+  var reclose = document.getElementById('reclose');
+  var decor = document.getElementById('decor');
+  var decorG = document.getElementById('decorG');
+  var reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var busy = false;
+
+  function f(n) { return Math.round(n * 10) / 10; }
+
+  /* ---------- Textures (generated) ---------- */
+  var grainSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' seed='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0.30  0 0 0 0 0.27  0 0 0 0 0.20  1.6 0 0 0 -0.55'/></filter><rect width='100%' height='100%' filter='url(#g)'/></svg>";
+  var weaveSvg = "<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='w' x='0' y='0' width='100%' height='100%' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='0.8 0.03' numOctaves='3' seed='4' stitchTiles='stitch' result='a'/><feTurbulence type='fractalNoise' baseFrequency='0.03 0.8' numOctaves='3' seed='9' stitchTiles='stitch' result='b'/><feComposite in='a' in2='b' operator='arithmetic' k1='0' k2='0.5' k3='0.5' k4='0'/><feColorMatrix type='matrix' values='0 0 0 0 0.32  0 0 0 0 0.26  0 0 0 0 0.18  1.9 0 0 0 -0.78'/></filter><rect width='100%' height='100%' filter='url(#w)' opacity='0.55'/></svg>";
+  function dataUrl(svg) { return 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")'; }
+  root.style.setProperty('--grain', dataUrl(grainSvg));
+  root.style.setProperty('--weave', dataUrl(weaveSvg));
+
+  /* ---------- Tabletop flowers and olive branch ---------- */
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function rad(d) { return d * Math.PI / 180; }
+
+  function spray(x, y, a, len, u, R) {
+    var stems = '', flowers = '';
+    function flower(fx, fy, r) {
+      var s = '', rot = R() * 72;
+      for (var k = 0; k < 5; k++) {
+        var deg = rot + k * 72, an = rad(deg);
+        var px = fx + Math.cos(an) * r * 0.55, py = fy + Math.sin(an) * r * 0.55;
+        s += '<ellipse cx="' + f(px) + '" cy="' + f(py) + '" rx="' + f(r * 0.58) + '" ry="' + f(r * 0.34) + '" transform="rotate(' + f(deg) + ' ' + f(px) + ' ' + f(py) + ')"/>';
+      }
+      return s + '<circle class="fc" cx="' + f(fx) + '" cy="' + f(fy) + '" r="' + f(r * 0.2) + '"/>';
+    }
+    function branch(bx, by, ba, bl, d) {
+      var ang = ba + (R() - 0.5) * 0.4;
+      var ex = bx + Math.cos(ang) * bl, ey = by + Math.sin(ang) * bl;
+      var off = (R() - 0.5) * bl * 0.25;
+      var mx = (bx + ex) / 2 + Math.cos(ang + Math.PI / 2) * off;
+      var my = (by + ey) / 2 + Math.sin(ang + Math.PI / 2) * off;
+      stems += '<path d="M' + f(bx) + ' ' + f(by) + ' Q' + f(mx) + ' ' + f(my) + ' ' + f(ex) + ' ' + f(ey) + '"/>';
+      if (d === 0) {
+        var m = 3 + Math.floor(R() * 3);
+        for (var i = 0; i < m; i++) {
+          var r = Math.max(4, u * (0.011 + R() * 0.005));
+          flowers += flower(ex + (R() - 0.5) * r * 2.4, ey + (R() - 0.5) * r * 2.4, r);
+        }
+        return;
+      }
+      if (R() < 0.6) { flowers += flower(mx, my, Math.max(3.5, u * 0.009)); }
+      var kids = d > 1 ? 3 : 2;
+      for (var k = 0; k < kids; k++) {
+        var spread = (k - (kids - 1) / 2) * 0.55;
+        branch(ex, ey, ang + spread, bl * (0.58 + R() * 0.14), d - 1);
+      }
+    }
+    branch(x, y, a, len * 0.42, 3);
+    return '<g class="stems">' + stems + '</g><g class="flowers">' + flowers + '</g>';
+  }
+
+  function leaf(x, y, a, l, R) {
+    var w = l * 0.2, ca = Math.cos(a), sa = Math.sin(a);
+    function P(px, py) { return f(x + ca * px - sa * py) + ' ' + f(y + sa * px + ca * py); }
+    var d = 'M' + P(0, 0) + ' C' + P(l * 0.25, -w) + ' ' + P(l * 0.75, -w * 0.8) + ' ' + P(l, 0) +
+            ' C' + P(l * 0.75, w * 0.8) + ' ' + P(l * 0.25, w) + ' ' + P(0, 0) + 'Z';
+    var sh = R(), cls = sh < 0.34 ? 'ol-a' : (sh < 0.67 ? 'ol-b' : 'ol-c');
+    return '<path class="' + cls + '" d="' + d + '"/><path class="rib" d="M' + P(0, 0) + ' L' + P(l * 0.92, 0) + '"/>';
+  }
+  function olive(x, y, a, len, u, R) {
+    var seg = 9, step = len / seg, cx = x, cy = y, ang = a, leaves = '';
+    var d = 'M' + f(x) + ' ' + f(y);
+    for (var i = 1; i <= seg; i++) {
+      ang += (R() - 0.5) * 0.18 + 0.04;
+      var nx = cx + Math.cos(ang) * step, ny = cy + Math.sin(ang) * step;
+      d += ' L' + f(nx) + ' ' + f(ny);
+      var ll = u * (0.075 + R() * 0.02);
+      leaves += leaf(nx, ny, ang + 0.85 + (R() - 0.5) * 0.2, ll, R);
+      leaves += leaf(nx, ny, ang - 0.85 + (R() - 0.5) * 0.2, ll * 0.95, R);
+      cx = nx; cy = ny;
+    }
+    leaves += leaf(cx, cy, ang + (R() - 0.5) * 0.2, u * 0.08, R);
+    return '<path class="olive-stem" d="' + d + '"/>' + leaves;
+  }
+
+  var lastW = 0, lastH = 0;
+  function drawDecor() {
+    var W = window.innerWidth, H = window.innerHeight;
+    if (!W || !H) { return; }
+    if (Math.abs(W - lastW) < 60 && Math.abs(H - lastH) < 60 && lastW) { return; }
+    lastW = W; lastH = H;
+    decor.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    var u = Math.min(W, H * 0.9);
+    var out = '';
+    out += olive(W + 8, -6, rad(122), u * 0.62, u, rng(11));
+    out += spray(-8, H * 0.06, rad(35), u * 0.5, u, rng(21));
+    out += spray(W + 8, H * 0.94, rad(212), u * 0.55, u, rng(31));
+    decorG.innerHTML = out;
+  }
+
+  /* ---------- Arch frame with a small vine ---------- */
+  function buildFrame() {
+    var w = paper.clientWidth, h = paper.clientHeight;
+    if (!w || !h) { return; }
+    var o1 = 14, o2 = 21, o3 = 28;
+    var r2 = (w - 2 * o2) / 2, cy2 = o2 + r2;
+    var sideLen = (h - o2) - cy2;
+    if (sideLen < 0) { return; }
+    var arcLen = Math.PI * r2, bottomLen = w - 2 * o2;
+    var total = 2 * sideLen + arcLen + bottomLen;
+    var n = Math.round(total / 13), step = total / n;
+    var leaves = '';
+    for (var k = 0; k < n; k++) {
+      var s = k * step, x, y, ang;
+      if (s < sideLen) {
+        x = o2; y = (h - o2) - s; ang = -Math.PI / 2;
+      } else if (s < sideLen + arcLen) {
+        var th = Math.PI + (s - sideLen) / r2;
+        x = w / 2 + r2 * Math.cos(th); y = cy2 + r2 * Math.sin(th); ang = th + Math.PI / 2;
+      } else if (s < 2 * sideLen + arcLen) {
+        x = w - o2; y = cy2 + (s - sideLen - arcLen); ang = Math.PI / 2;
+      } else {
+        x = (w - o2) - (s - 2 * sideLen - arcLen); y = h - o2; ang = Math.PI;
+      }
+      var side = (k % 2 === 0) ? 1 : -1;
+      var lx = x + (-Math.sin(ang)) * side * 2.6, ly = y + Math.cos(ang) * side * 2.6;
+      var deg = ang * 180 / Math.PI + side * 38;
+      leaves += '<ellipse cx="' + f(lx) + '" cy="' + f(ly) + '" rx="4.2" ry="1.5" transform="rotate(' + f(deg) + ' ' + f(lx) + ' ' + f(ly) + ')"/>';
+    }
+    function path(i) {
+      var r = (w - 2 * i) / 2, cy = i + r;
+      return 'M' + i + ' ' + (h - i) + ' L' + i + ' ' + f(cy) + ' A' + f(r) + ' ' + f(r) + ' 0 0 1 ' + f(w - i) + ' ' + f(cy) + ' L' + f(w - i) + ' ' + (h - i) + ' Z';
+    }
+    frame.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    frame.innerHTML =
+      '<path d="' + path(o1) + '" fill="none" style="stroke:var(--ornament)" stroke-width="1.3"/>' +
+      '<path d="' + path(o3) + '" fill="none" style="stroke:var(--ornament)" stroke-width="0.7"/>' +
+      '<path d="' + path(o2) + '" fill="none" style="stroke:var(--ornament)" stroke-width="0.6" opacity="0.7"/>' +
+      '<g style="fill:var(--ornament)" opacity="0.85">' + leaves + '</g>' +
+      '<path d="M' + f(w / 2) + ' ' + (o2 - 5) + ' l5 5 l-5 5 l-5 -5 Z" style="fill:var(--paper);stroke:var(--ornament)" stroke-width="0.8"/>';
+  }
+
+  var frameQueued = false;
+  function queueFrame() {
+    if (frameQueued) { return; }
+    frameQueued = true;
+    requestAnimationFrame(function () { frameQueued = false; buildFrame(); });
+  }
+  if (window.ResizeObserver) { new ResizeObserver(queueFrame).observe(paper); }
+  window.addEventListener('resize', function () { queueFrame(); drawDecor(); });
+
+  /* ---------- Open / close ---------- */
+  function showLetter() {
+    scene.hidden = true;
+    view.hidden = false;
+    buildFrame();
+    view.classList.remove('show');
+    void view.offsetWidth;
+    view.classList.add('show');
+    window.scrollTo(0, 0);
+    view.focus({ preventScroll: true });
+    busy = false;
+  }
+
+  function openEnvelope() {
+    if (busy || wrap.classList.contains('open')) { return; }
+    busy = true;
+    wrap.classList.add('open');
+    setTimeout(function () {
+      scene.classList.add('leaving');
+      setTimeout(showLetter, reduce ? 0 : 550);
+    }, reduce ? 0 : 2700);
+  }
+
+  function closeEnvelope() {
+    view.hidden = true;
+    scene.classList.remove('leaving');
+    wrap.classList.remove('open');
+    scene.hidden = false;
+    window.scrollTo(0, 0);
+    envelope.focus({ preventScroll: true });
+  }
+
+  envelope.addEventListener('click', openEnvelope);
+  reclose.addEventListener('click', closeEnvelope);
+  drawDecor();
+})();
+</script>
+
+</body>
+</html>
